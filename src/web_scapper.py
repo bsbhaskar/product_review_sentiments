@@ -5,19 +5,26 @@ import pickle
 import time
 import sys
 
-def scrape_data(list_name, id, url):
+def scrape_data(list_name, id, url, scraping_site='amazon'):
     documents = []
+    if (scraping_site == 'amazon'):
+        next_page_class = 'li.a-last'
+    elif (scraping_site == 'bestbuy'):
+        next_page_class = "li.next"
+    elif (scraping_site == 'walmart')
+        next_page_class = "button.paginator-btn-next"
+
     browser = Chrome()
     contains_next_page = True
     while (contains_next_page and len(documents) < 250):
         print ('Inside While:',len(documents), url)
-        time.sleep(random.choice([20,25,30,35,40,45]))
+        time.sleep(random.choice(range(20,50)))
         browser.get(url)
         html = browser.page_source
         documents.append(html)
         print ('Before Try:',len(documents))
         try:
-            search_button = browser.find_element_by_css_selector("li.a-last")
+            search_button = browser.find_element_by_css_selector(next_page_class)
             links = search_button.find_element_by_css_selector('a')
             url = links.get_attribute("href")
             print (url)
@@ -25,7 +32,7 @@ def scrape_data(list_name, id, url):
             contains_next_page = False
             print('failed')
     if (len(documents) > 0):
-        pickle.dump( documents, open( f'data/{list_name}_{id}', "wb" ) )
+        pickle.dump( documents, open( f'data/{list_name}_{scraping_site}_{id}', "wb" ) )
         return True
     else:
         return False
@@ -41,9 +48,5 @@ def load_scrape_list(filename):
 list_name = sys.argv[1]
 id = sys.argv[2]
 url = sys.argv[3]
-scrape_data(list_name, id, url)
-
-
-
-
-
+site = sys.argv[4]
+scrape_data(list_name, id, url, site)
