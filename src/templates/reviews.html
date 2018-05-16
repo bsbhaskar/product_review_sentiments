@@ -8,12 +8,12 @@
   <meta name="author" content="Bhaskar Ballapragada">
 
     <script type="text/javascript"
-            src="{{ url_for('static', filename='jquery.js') }}">  
+            src="{{ url_for('static', filename='jquery.js') }}">
     </script>
-    <script type="text/javascript" 
-            src="{{ url_for('static', filename='app.js') }}">  
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='app.js') }}">
     </script>
-    <link rel="stylesheet" type="text/css" 
+    <link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
     {% if (topic_dict)  %}
@@ -22,7 +22,12 @@
             $('#lda_chart').load('lda');
         });
     </script>
-    {% endif %} 
+    {% endif %}
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 </head>
 
@@ -39,7 +44,7 @@
     <div class="row">
       <div class="form-inline">
 	<form name="review" method="POST" action="/solve" >
-		<select name="model" id="model" >       
+		<select name="model" id="model" >
 		{% for row in data %}
 			<option {{ "selected" if mdl == row[2] }} value="{{row[2]}}" >{{ row[1] + ' ' + row[2] }}</option>
 		{% endfor %}
@@ -60,8 +65,12 @@
 	{% endif %}
     </div>
     <p>
-    <div class='lda_chart' id="lda_chart" >
+  {% if (topic_dict) %}
+    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#lda_chart">LDA Topic Model (+)</button>
+    <div class='collapse' id="lda_chart" >
     </div>
+  {% endif %}
+
 </div>
 </body>
 </html>
