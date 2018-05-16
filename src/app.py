@@ -1,38 +1,42 @@
-from collections import Counter
-from flask import Flask, request
-import pickle
-import pandas as pd
+import psycopg2
+from flask import Flask, render_template, request, jsonify
+from naive_review_analyzer import NaiveReviewAnalyzer
+from LdaReviewAnalyzer import LdaReviewAnalyzer
+from load_review_data import ReviewDataLoader
+
+rdl = ReviewDataLoader()
+nra = NaiveReviewAnalyzer()
+
 app = Flask(__name__)
+conn = psycopg2.connect(dbname='product_reviews', user='postgres', password='', host='localhost')
+cursor = conn.cursor()
+sql = "select category, brand_name, model from reviews group by category, brand_name, model"
+cursor.execute(sql)
+rows = cursor.fetchall()
 
-@app.route('/')
-def welcome_page():
-    return '''
-        <H1>Welcome to the Consumer Review Insights, click on the link below to classify your text: </H1>
-            <A href="/submit">Click Here</A>
-        '''
+@app.route('/test', methods=['GET'])
+def test():
+    return render_template('test.html')
 
-# Form page to submit text
-@app.route('/submit')
-def submission_page():
-    return '''
-        <H1>Enter Text to Classify Here</H1>
-        <form action="/predict" method='POST' >
-            <input type="text" name="user_input" />
-            <input type="submit" />
-        </form>
-        '''
+@app.route('/index', methods=['GET'])
+def index():
+    return render_template('reviews.html', data=rows)
 
-# My text classifier app
-@app.route('/predict', methods=['POST'] )
-def text_classifier():
+@app.route('/solve', methods=['POST'])
+def submit():
+    mdl = request.form['model']
+    df = rdl.retrieve_reviews(mdl)
+    nra.create_bow(df)
+    token_dict = nra.create_word_list()
+    lda = LdaReviewAnalyzer(df)
+    lda.fit_transform(num_topics=3)
+    topic_dict = lda.get_topics()
+    lda.save_topic_model()
+    return render_template('reviews.html', data=rows,mdl=mdl, token_dict=token_dict,topic_dict=topic_dict)
 
-    text = [str(request.form['user_input'])]
-    with open('data/model.pkl', 'rb') as f:
-        model = pickle.load(f)
-    prediction =  model.predict(text)
-
-    page = f'This text belongs to <br> {prediction}'
-    return page
+@app.route('/lda', methods=['GET'])
+def lda_display():
+    return render_template('lda.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', threaded=True)
