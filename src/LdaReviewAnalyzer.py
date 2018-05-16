@@ -15,6 +15,7 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 import ipywidgets
 import pyLDAvis.sklearn
+import pickle
 
 class LdaReviewAnalyzer():
 
@@ -46,15 +47,29 @@ class LdaReviewAnalyzer():
         self.lda_model = LatentDirichletAllocation(n_topics=num_topics, max_iter=10, learning_method='online')
         self.lda_results = self.lda_model.fit_transform(self.data_vectorized)
 
-    def print_topics(self, top_n=10):
-
+    def get_topics(self, top_n=10):
+        tpc_dict = {}
         for idx, topic in enumerate(self.lda_model.components_):
-            print("Topic %d:" % (idx))
-            print([(self.vectorizer.get_feature_names()[i], topic[i])
-                            for i in topic.argsort()[:-top_n - 1:-1]])
+            tpc = ("Topic %d:" % (idx))
+            tpc_list = [(self.vectorizer.get_feature_names()[i], topic[i])
+                            for i in topic.argsort()[:-top_n - 1:-1]]
+            tpc_dict[tpc] = tpc_list
+        return tpc_dict
+
+    def save_topic_model(self):
+
+        #pyLDAvis.enable_notebook()
+        panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne')
+        pyLDAvis.save_html(panel,'templates/lda.html')
 
     def display_topic_model(self):
 
         pyLDAvis.enable_notebook()
         panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne')
-        return pyLDAvis.display(panel)
+        return pyLDAvis(panel)
+
+
+    def save_lda_analyzer(self, loc='static/lda.pkl'):
+
+        with open(loc, 'wb') as f:
+            pickle.dump(self, f)

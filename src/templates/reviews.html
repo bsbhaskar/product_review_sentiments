@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Product Reviews</title>
+  <meta name="description" content="Product Reviews">
+  <meta name="author" content="Bhaskar Ballapragada">
+
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='jquery.js') }}">
+    </script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='app.js') }}">
+    </script>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='css/bootstrap.css') }}">
+
+    {% if (topic_dict)  %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#lda_chart').load('lda');
+        });
+    </script>
+    {% endif %}
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Product Insights</h1>
+
+    <div class="row">
+        <p>This app will provide insights on your product!</p>
+        <p>Please select your product from drop down menu below!</p>
+    </div>
+
+    <div class="row">
+      <div class="form-inline">
+	<form name="review" method="POST" action="/solve" >
+		<select name="model" id="model" >
+		{% for row in data %}
+			<option {{ "selected" if mdl == row[2] }} value="{{row[2]}}" >{{ row[1] + ' ' + row[2] }}</option>
+		{% endfor %}
+		</select>
+		<input type=submit name=submit >
+	</form>
+      </div>
+    </div>
+    <div class="row">
+	{% if (token_dict) %}
+		<table>
+	{% for k,v in token_dict.items() %}
+			<tr>
+				<td>{{k}}</td><td>{{v}}</td>
+			</tr>
+	{% endfor %}
+		</table>
+	{% endif %}
+    </div>
+    <p>
+  {% if (topic_dict) %}
+    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#lda_chart">LDA Topic Model (+)</button>
+    <div class='collapse' id="lda_chart" >
+    </div>
+  {% endif %}
+
+</div>
+</body>
+</html>

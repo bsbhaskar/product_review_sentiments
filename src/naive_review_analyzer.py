@@ -13,12 +13,11 @@ nltk.download('wordnet')
 
 class NaiveReviewAnalyzer:
 
-    def __init__(self, df):
+    def __init__(self):
 
         # df = dataframe with atleast three columns rating, product, review
         # review - is the corpus of documents
         # rating - consists of binary label - 1 for pos reviews & 0 for neg reviews
-        self.df = df
         self.stop_words = set(stopwords.words('english'))
         self.punctuation = set(string.punctuation)
         self.lemmatize = WordNetLemmatizer()
@@ -33,18 +32,18 @@ class NaiveReviewAnalyzer:
 
         return doc
 
-    def create_bow(self):
-
+    def create_bow(self, df):
+        
+        self.df = df
         self.df['bow'] = self.df['reviews'].apply(lambda x: self.clean_document(x))
 
-    def create_word_list(self, product='all', rating=1):
-
+    def create_word_list(self, product='all', rating=[5,1]):
 
         if (product == 'all'):
-            df_prod = self.df[self.df['rating'] == rating]
+            df_prod = self.df[self.df['rating'].apply(lambda x: x in rating)]
         else:
             df_prod = self.df[self.df['product'] == product]
-            df_prod = df_prod[df_prod['rating'] == rating]
+            df_prod = df_prod[self.df['rating'].apply(lambda x: x in rating)]
 
         tfidf = TfidfVectorizer(stop_words='english',max_features=10000)
         X_descr_vectors = tfidf.fit_transform(df_prod['bow'])
@@ -52,13 +51,16 @@ class NaiveReviewAnalyzer:
         nb.fit(X_descr_vectors, df_prod['rating'].transpose())
         y_hat = nb.predict_proba(X_descr_vectors)
         arr = np.argsort(nb.feature_log_prob_[0])[-20:-1]
+
         list_of_words = []
         for i in arr:
             list_of_words.append(tfidf.get_feature_names()[i])
 
         tokens = self.nlp(' '.join(list_of_words))
-        list_of_tokens = []
+        list_of_tokens = {}
         for token in tokens:
-            list_of_tokens.append((token.orth_, token.pos_))
+            value = list_of_tokens.get(token.pos_,[])
+            value.append(token.orth_)
+            list_of_tokens[token.pos_] = value
 
         return list_of_tokens
