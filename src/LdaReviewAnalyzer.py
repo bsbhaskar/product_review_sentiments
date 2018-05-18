@@ -23,29 +23,43 @@ class LdaReviewAnalyzer():
     #Latent Dirichlet Allocation algorithm from sklearn
     #pyLDAvis library is used to visualize the topics
 
-    def __init__(self, df):
+    def __init__(self, num_topics=5):
         # df is dataframe with atleaast one column named reviews which is the # # corpus used for analyzing topics. The dataframe may contain products # and ratings if necessary for segmenting the topics
-        self.df_prod = df
+        self.num_topics = num_topics
+        self.stop_words = set(stopwords.words('english'))
+        custom_stop_words = set(['samsung','one','amazon','sony'])
+        self.stop_words = self.stop_words.union(custom_stop_words)
+
+    def build_vectorize(self, df_prod):
+
+        self.vectorizer = CountVectorizer(min_df=5, max_df=0.9,
+                             stop_words=self.stop_words, lowercase=True,
+                             token_pattern='[a-zA-Z\-][a-zA-Z\-]{2,}')
+        self.vectorizer.fit(df_prod['reviews'])
 
     def vectorize(self, product=all, rating=[0,1]):
 
         if (product == 'all'):
             df_prod = self.df_prod[self.df_prod['rating'].apply(lambda x: x in rating)]
         else:
-            df_prod = self.df_prod[self.df_prod['product'] == product]
+            df_prod = self.df_prod[self.df_prod['model'] == product]
             df_prod = df_prod[df_prod['rating'].apply(lambda x: x in rating)]
 
-        self.vectorizer = CountVectorizer(min_df=5, max_df=0.9,
-                             stop_words='english', lowercase=True,
-                             token_pattern='[a-zA-Z\-][a-zA-Z\-]{2,}')
-        self.data_vectorized = self.vectorizer.fit_transform(df_prod['reviews'])
+        data_vectorized = self.vectorizer.transform(df_prod['reviews'])
+        return data_vectorized
 
+    def fit(self, df, product='all',rating=[1,2,3,4,5], random_state=40):
 
-    def fit_transform(self, num_topics=5, product='all',rating=[0,1]):
+        self.df_prod = df
+        data_vectorized = self.vectorize(product,rating)
+        self.lda_model = LatentDirichletAllocation(n_topics=self.num_topics, max_iter=10, learning_method='online', random_state=random_state)
+        self.lda_model.fit(data_vectorized)
 
-        self.vectorize(product,rating)
-        self.lda_model = LatentDirichletAllocation(n_topics=num_topics, max_iter=10, learning_method='online')
-        self.lda_results = self.lda_model.fit_transform(self.data_vectorized)
+    def transform(self, product='all',rating=[1,2,3,4,5]):
+
+        self.data_vectorized = self.vectorize(product,rating)
+        self.lda_results = self.lda_model.transform(self.data_vectorized)
+        return self.lda_results
 
     def get_topics(self, top_n=10):
         tpc_dict = {}
@@ -56,17 +70,17 @@ class LdaReviewAnalyzer():
             tpc_dict[tpc] = tpc_list
         return tpc_dict
 
-    def save_topic_model(self):
+    def save_topic_model(self, loc='templates/lda.html'):
 
         #pyLDAvis.enable_notebook()
         panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne')
-        pyLDAvis.save_html(panel,'templates/lda.html')
+        pyLDAvis.save_html(panel,loc)
 
     def display_topic_model(self):
 
         pyLDAvis.enable_notebook()
         panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne')
-        return pyLDAvis(panel)
+        return pyLDAvis.display(panel)
 
 
     def save_lda_analyzer(self, loc='static/lda.pkl'):

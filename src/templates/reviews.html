@@ -16,31 +16,48 @@
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
-    {% if (topic_dict)  %}
     <script type="text/javascript">
         $(document).ready(function(){
-            $('#lda_chart').load('lda');
+            $('#lda_chart_beta').load('lda');
         });
     </script>
-    {% endif %}
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+  <style>
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        display: inline;
+    }
+  </style>
+
 </head>
 
 <body>
 <div class="container">
 
-    <h1>Product Insights</h1>
+  <div class="row" style="border:none; background:white; height:210px;">
+		<div class="col-xs-6">
+			<img src="static/images/logo.png" style="height:150px; margin-left:-15px;" />
+		</div>
+		<div class="col-xs-6">
+			<h2>Product Insights</h2>
+			<p style="font-size:14px; color:#03225C;">Your solution to Data Driven Decision through Product Insights on Consumer Reviews.
+      </p>
+         <a href="lda" class="btn btn-info" role="button">LDA Topic Model (Beta)</a>
+      <p>
 
-    <div class="row">
-        <p>This app will provide insights on your product!</p>
-        <p>Please select your product from drop down menu below!</p>
-    </div>
-
+      </div>
+	</div>
+  <hr>
     <div class="row">
       <div class="form-inline">
 	<form name="review" method="POST" action="/solve" >
@@ -53,24 +70,44 @@
 	</form>
       </div>
     </div>
-    <div class="row">
-	{% if (token_dict) %}
-		<table>
-	{% for k,v in token_dict.items() %}
+    <div class="row col-md-6" >
+	{% if (token_dict_neg) %}
+    <p>
+    <table class="table" >
+      <tr>
+        <td>Total Reviews:{{ total_count }}</td>
+        <td>Positive Reviews:{{ pos_count }}</td>
+        <td>Negative Reviews:{{ neg_count }}</td>
+      </tr>
+    </table>
+    <p>
+		<table class="table table-condensed table-striped table-bordered" >
+      <tbody>
+        <thead>
+          <tr>
+            <th scope="col">Positive Keyword</th>
+            <th scope="col">Relative Importance</th>
+            <th scope="col">&nbsp;&nbsp;&nbsp;</th>
+            <th scope="col">Negative Keyword</th>
+            <th scope="col">Relatative Importance</th>
+          </tr>
+        </thead>
+
+	{% for i in range(20) %}
 			<tr>
-				<td>{{k}}</td><td>{{v}}</td>
+	          <td>{{token_dict_pos[i][0]}}</td>
+            <td>{{token_dict_pos[i][1]}}</td>
+            <td>&nbsp;&nbsp;&nbsp;</td>
+            <td>{{token_dict_neg[i][0]}}</td>
+            <td>{{token_dict_neg[i][1]}}</td>
 			</tr>
 	{% endfor %}
+      </tbody>
 		</table>
-	{% endif %}
+  {% endif %}
     </div>
     <p>
-  {% if (topic_dict) %}
-    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#lda_chart">LDA Topic Model (+)</button>
-    <div class='collapse' id="lda_chart" >
-    </div>
-  {% endif %}
-
+</div>
 </div>
 </body>
 </html>
