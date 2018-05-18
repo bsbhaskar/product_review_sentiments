@@ -19,6 +19,8 @@ class NaiveReviewAnalyzer:
         # review - is the corpus of documents
         # rating - consists of binary label - 1 for pos reviews & 0 for neg reviews
         self.stop_words = set(stopwords.words('english'))
+        custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line'])
+        self.stop_words = self.stop_words.union(custom_stop_words)
         self.punctuation = set(string.punctuation)
         self.lemmatize = WordNetLemmatizer()
         self.nlp = spacy.load("en")
@@ -30,14 +32,14 @@ class NaiveReviewAnalyzer:
         doc_no_punctuation = "".join(i for i in doc_no_stopwords if i not in self.punctuation)
         doc_Lemmatized = " ".join(self.lemmatize.lemmatize(i) for i in doc_no_punctuation.split())
 
-        return doc
+        return doc_no_stopwords
 
     def create_bow(self, df):
-        
+
         self.df = df
         self.df['bow'] = self.df['reviews'].apply(lambda x: self.clean_document(x))
 
-    def create_word_list(self, product='all', rating=[5,1]):
+    def create_word_list(self, product='all', rating=[1,5]):
 
         if (product == 'all'):
             df_prod = self.df[self.df['rating'].apply(lambda x: x in rating)]
@@ -45,22 +47,33 @@ class NaiveReviewAnalyzer:
             df_prod = self.df[self.df['product'] == product]
             df_prod = df_prod[self.df['rating'].apply(lambda x: x in rating)]
 
-        tfidf = TfidfVectorizer(stop_words='english',max_features=10000)
+        tfidf = TfidfVectorizer(stop_words=self.stop_words,max_features=10000)
         X_descr_vectors = tfidf.fit_transform(df_prod['bow'])
         nb = MultinomialNB()
         nb.fit(X_descr_vectors, df_prod['rating'].transpose())
         y_hat = nb.predict_proba(X_descr_vectors)
-        arr = np.argsort(nb.feature_log_prob_[0])[-20:-1]
+        arr = np.argsort(nb.feature_log_prob_[0])[-50:-1]
 
         list_of_words = []
+        list_of_prob = []
+        max_prob = np.exp(nb.feature_log_prob_[0][arr[-1]])
+
         for i in arr:
             list_of_words.append(tfidf.get_feature_names()[i])
+            list_of_prob.append(int((np.exp(nb.feature_log_prob_[0][i])/max_prob)*100))
+
 
         tokens = self.nlp(' '.join(list_of_words))
-        list_of_tokens = {}
-        for token in tokens:
-            value = list_of_tokens.get(token.pos_,[])
-            value.append(token.orth_)
-            list_of_tokens[token.pos_] = value
 
-        return list_of_tokens
+        list_of_tokens = {}
+        list_of_keywords = []
+        sim = []
+        for i, word in enumerate(list_of_words):
+            tokens = self.nlp(word)
+            if (tokens[0].pos_ in ['ADJ','NOUN','VERB']):
+                value = list_of_tokens.get(tokens[0].pos_,[])
+                value.append((tokens[0].orth_,list_of_prob[i]))
+                list_of_tokens[tokens[0].pos_] = value
+                list_of_keywords.append((word,list_of_prob[i]))
+
+        return list(reversed(list_of_keywords))

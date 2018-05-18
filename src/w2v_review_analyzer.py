@@ -1,8 +1,10 @@
 import sys
 import os
+import string
 import pandas as pd
 import numpy as np
 import spacy
+from nltk.stem.wordnet import WordNetLemmatizer
 from gensim.models import Phrases, Word2Vec
 from nltk.corpus import stopwords
 import warnings
@@ -15,6 +17,22 @@ class W2VReviewAnalyzer():
         self.df_prod = df
         self.nlp = spacy.load("en")
         self.stop_words = set(stopwords.words('english'))
+        self.punctuation = set(string.punctuation)
+        self.lemmatize = WordNetLemmatizer()
+
+
+    def clean_document(self, doc):
+        words = []
+        for word in doc.lower().split():
+            if ((word not in self.stop_words) and (word not in self.punctuation) and (len(word) > 1)):
+                words.append(self.lemmatize.lemmatize(word))
+        return words
+
+    def create_bow(self):
+
+        self.df_prod['bow'] = self.df_prod['reviews'].apply(lambda x: self.clean_document(x))
+        self.build_trigrams()
+        return self.df_prod
 
     def keep_token(self, token):
 
@@ -51,6 +69,10 @@ class W2VReviewAnalyzer():
 
         self.build_trigrams()
         self.model = Word2Vec(self.trigrams_doc, size=100, window=5, min_count=5, workers=4)
+
+    def fit2(self):
+
+        self.model = Word2Vec(self.df_prod['bow'].values, size=100, window=5, min_count=5, workers=4)
 
     def most_similar(pos=[], neg=[]):
 
