@@ -452,14 +452,14 @@ def plot_roc(ax, model, df_X, y, pipeline=None):
     preds = probs[:,1]
     fpr, tpr, threshold = roc_curve(y, preds)
     roc_auc = auc(fpr, tpr)
-    ax.set_title('Receiver Operating Characteristic')
-    ax.plot(fpr, tpr, label = f'AUC {model.__class__.__name__} = %0.2f' % roc_auc)
+    ax.set_title('Receiver Operating Characteristic', fontsize=25)
+    ax.plot(fpr, tpr, label = f'AUC = %0.2f' % roc_auc)
     ax.legend(loc='lower right', fontsize=20)
     ax.plot([0, 1], [0, 1],'r--')
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1])
-    ax.set_ylabel('True Positive Rate')
-    ax.set_xlabel('False Positive Rate')
+    ax.set_ylabel('True Positive Rate', fontsize=20)
+    ax.set_xlabel('False Positive Rate', fontsize=20)
 
 def plot_rocs(models, df_X, y, pipeline=None):
     if pipeline:
