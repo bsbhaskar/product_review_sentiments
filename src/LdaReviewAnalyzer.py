@@ -27,7 +27,7 @@ class LdaReviewAnalyzer():
         # df is dataframe with atleaast one column named reviews which is the # # corpus used for analyzing topics. The dataframe may contain products # and ratings if necessary for segmenting the topics
         self.num_topics = num_topics
         self.stop_words = set(stopwords.words('english'))
-        custom_stop_words = set(['samsung','one','amazon','sony'])
+        custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line','tv','picture','screen','hour','day','week','month','time','work'])
         self.stop_words = self.stop_words.union(custom_stop_words)
 
     def build_vectorize(self, df_prod):
@@ -37,7 +37,7 @@ class LdaReviewAnalyzer():
                              token_pattern='[a-zA-Z\-][a-zA-Z\-]{2,}')
         self.vectorizer.fit(df_prod['reviews'])
 
-    def vectorize(self, product=all, rating=[0,1]):
+    def vectorize(self, product='all', rating=[1,2,3,4,5]):
 
         if (product == 'all'):
             df_prod = self.df_prod[self.df_prod['rating'].apply(lambda x: x in rating)]
