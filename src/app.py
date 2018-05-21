@@ -3,6 +3,9 @@ from flask import Flask, render_template, request, jsonify
 from naive_review_analyzer import NaiveReviewAnalyzer
 from LdaReviewAnalyzer import LdaReviewAnalyzer
 from load_review_data import ReviewDataLoader
+from random import random
+import matplotlib.pyplot as plt
+from io import BytesIO
 
 rdl = ReviewDataLoader()
 nra = NaiveReviewAnalyzer()
@@ -25,6 +28,15 @@ def test():
 @app.route('/', methods=['GET'])
 def index():
     return render_template('reviews.html', data=rows)
+
+@app.route('/plot.png')
+def get_graph():
+    plt.figure()
+    n = 10
+    plt.plot(range(n), [random() for i in range(n)])
+    image = BytesIO()
+    plt.savefig(image)
+    return image.getvalue(), 200, {'Content-Type': 'image/png'}
 
 @app.route('/solve', methods=['POST'])
 def submit():
@@ -62,4 +74,4 @@ def lda_display_neg():
     return render_template('lda_neg.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', threaded=True)
+    app.run(host='0.0.0.0')
