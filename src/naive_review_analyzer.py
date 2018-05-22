@@ -19,7 +19,7 @@ class NaiveReviewAnalyzer:
         # review - is the corpus of documents
         # rating - consists of binary label - 1 for pos reviews & 0 for neg reviews
         self.stop_words = set(stopwords.words('english'))
-        custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line','tv','picture','screen','hour','day','week','month','time','work'])
+        custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line','tv','picture','screen','hour','day','week','month','time','work','days','months','weeks'])
         self.stop_words = self.stop_words.union(custom_stop_words)
         self.punctuation = set(string.punctuation)
         self.lemmatize = WordNetLemmatizer()
@@ -81,4 +81,4 @@ class NaiveReviewAnalyzer:
             elif (tokens[0].pos_ in ['VERB']):
                 list_of_verbs.append((word,list_of_prob[i]))
 
-        return list_of_nouns,list_of_adjs,list_of_verbs
+        return list(reversed(list_of_nouns)),list(reversed(list_of_adjs))
