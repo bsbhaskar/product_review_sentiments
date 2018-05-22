@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Product Reviews</title>
+    <meta name="description" content="Product Reviews">
+    <meta name="author" content="Bhaskar Ballapragada">
+
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}">
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='app.js') }}">
+    </script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#lda_chart_beta').load('lda');
+        });
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            display: inline;
+        }
+
+        body {
+          font-size : 2em;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row" style="border:none; background:white; height:210px;">
+            <div class="col-xs-6">
+                <img src="static/images/logo.png" style="height:150px; margin-left:-15px;" />
+            </div>
+            <div class="col-xs-6">
+                <h2>Product Insights</h2>
+                <p style="font-size:14px; color:#03225C;">Your solution to Data Driven Decision through Product Insights on Consumer Reviews.
+                </p>
+                <a href="/" class="btn btn-info" role="button">Sentiment</a>
+                <a href="lda" class="btn btn-info" role="button">LDA Topic Model (Beta)</a>
+                <a href="w2v" class="btn btn-info" role="button">Word2Vec Model (Beta)</a>
+                <p>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-inline">
+                    <form name="input_words" method="POST" action="/w2v_results">
+                        Positive Matches:
+                        <input type="text" name="plus" value="{{ plus }}" />
+                        Negative Matches:
+                        <input type="text" name="minus" value="{{ minus }}" />
+                        <input type=submit name=submit>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div>
+            <p></p>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {% if (sim_words) %}
+                <table class="table table-condensed table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Similar Word</th>
+                            <th scope="col">Cosine Similarity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%  for x in sim_words  %}
+                        <tr>
+                            <td>{{ x[0] }}</td>
+                            <td>{{ x[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
