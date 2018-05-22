@@ -35,6 +35,11 @@
         li {
             display: inline;
         }
+
+        body {
+          font-size : 2em;
+        }
+
     </style>
 
 </head>
@@ -49,9 +54,10 @@
                 <h2>Product Insights</h2>
                 <p style="font-size:14px; color:#03225C;">Your solution to Data Driven Decision through Product Insights on Consumer Reviews.
                 </p>
+                <a href="/" class="btn btn-info" role="button">Sentiment</a>
                 <a href="lda" class="btn btn-info" role="button">LDA Topic Model (Beta)</a>
+                <a href="w2v" class="btn btn-info" role="button">Word2Vec Model (Beta)</a>
                 <p>
-
             </div>
         </div>
         <hr>
@@ -69,6 +75,22 @@
                 </div>
             </div>
         </div>
+        <div>
+            <p></p>
+        </div>
+        {% if (total_count) %}
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered"  >
+                    <tr>
+                        <td fontsize="24" >Total Reviews:{{ total_count }}</td>
+                        <td fontsize="24" >Positive Reviews:{{ pos_count }}</td>
+                        <td fontsize="24">Negative Reviews:{{ neg_count }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
         <div class="row">
             {% if (token_dict_pos) %}
             <div class="col-md-6" id="plot_pos">
@@ -79,18 +101,10 @@
             </div>
             {% endif %}
         </div>
-        {% if (token_dict_pos) %}
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table">
-                    <tr>
-                        <td>Total Reviews:{{ total_count }}</td>
-                        <td>Positive Reviews:{{ pos_count }}</td>
-                        <td>Negative Reviews:{{ neg_count }}</td>
-                    </tr>
-                </table>
-            </div>
+        <div>
+            <p></p>
         </div>
+        {% if (token_dict_pos) %}
         <div class="row">
             <div class="col-md-6">
                 <table class="table table-condensed table-striped table-bordered">
