@@ -6,6 +6,8 @@ from load_review_data import ReviewDataLoader
 from trigrams import Trigrams
 from w2v_review_analyzer import W2VReviewAnalyzer
 from random import random
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
 import pandas as pd
@@ -102,12 +104,13 @@ def submit():
     print ('objects:',objects)
     print ('performance:',performance)
 
-    fig, ax = plt.subplots(1,1, figsize=(5,8))
-    ax.barh(y_pos, performance, align='center', alpha=0.5)
-    plt.yticks(y_pos, objects, fontsize=15)
-    plt.xticks(fontsize=15)
-    ax.set_xlabel('Relative Probability', fontsize=20)
-    ax.set_title('Positive Keywords', fontsize=20)
+    fig, ax = plt.subplots(1,1, figsize=(12,8))
+    ax.barh(y_pos, performance, align='center', alpha=0.5, color='teal')
+    plt.yticks(y_pos, objects, fontsize=30)
+    plt.xticks(fontsize=30)
+    ax.set_xlabel('Relative Probability', fontsize=36)
+    ax.set_title('Positive Keywords', fontsize=36)
+    ax.set_xlim(0,100)
     plt.tight_layout()
     plt.savefig(f'static/images/plot_pos_{mdl}.png')
 
@@ -116,16 +119,17 @@ def submit():
     #y_neg = list(range(len(objects)))
     performance = [x[1] for i,x in enumerate(token_dict_neg) if i < max_count]
 
-    fig, ax = plt.subplots(1,1, figsize=(5,8))
-    ax.barh(y_neg, performance, align='center', alpha=0.5)
-    plt.yticks(y_neg, objects, fontsize=15)
-    plt.xticks(fontsize=15)
-    ax.set_xlabel('Relative Probability', fontsize=20)
-    ax.set_title('Negative Keywords', fontsize=20)
+    fig, ax = plt.subplots(1,1, figsize=(12,8))
+    ax.barh(y_neg, performance, align='center', alpha=0.5, color='firebrick')
+    plt.yticks(y_neg, objects, fontsize=30)
+    plt.xticks(fontsize=30)
+    ax.set_xlabel('Relative Probability', fontsize=36)
+    ax.set_title('Negative Keywords', fontsize=36)
+    ax.set_xlim(0,100)
     plt.tight_layout()
     plt.savefig(f'static/images/plot_neg_{mdl}.png')
-    plot_neg_img = f'<img width="500" height="600" src="static/images/plot_neg_{mdl}.png" />'
-    plot_pos_img = f'<img  width="500" height="600" src="static/images/plot_pos_{mdl}.png" />'
+    plot_neg_img = f'<img width="500" height="400" src="static/images/plot_neg_{mdl}.png" />'
+    plot_pos_img = f'<img  width="500" height="400" src="static/images/plot_pos_{mdl}.png" />'
 
     #return render_template('reviews.html')
     return render_template('reviews.html',
