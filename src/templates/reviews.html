@@ -1,114 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <title>Product Reviews</title>
-  <meta name="description" content="Product Reviews">
-  <meta name="author" content="Bhaskar Ballapragada">
+    <title>Product Reviews</title>
+    <meta name="description" content="Product Reviews">
+    <meta name="author" content="Bhaskar Ballapragada">
 
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='jquery.js') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}">
     </script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='app.js') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='app.js') }}">
     </script>
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename='css/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function() {
             $('#lda_chart_beta').load('lda');
         });
     </script>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-  <style>
-    ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-    }
+    <style>
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
 
-    li {
-        display: inline;
-    }
-  </style>
+        li {
+            display: inline;
+        }
+    </style>
 
 </head>
 
 <body>
-<div class="container">
+    <div class="container">
+        <div class="row" style="border:none; background:white; height:210px;">
+            <div class="col-xs-6">
+                <img src="static/images/logo.png" style="height:150px; margin-left:-15px;" />
+            </div>
+            <div class="col-xs-6">
+                <h2>Product Insights</h2>
+                <p style="font-size:14px; color:#03225C;">Your solution to Data Driven Decision through Product Insights on Consumer Reviews.
+                </p>
+                <a href="lda" class="btn btn-info" role="button">LDA Topic Model (Beta)</a>
+                <p>
 
-  <div class="row" style="border:none; background:white; height:210px;">
-		<div class="col-xs-6">
-			<img src="static/images/logo.png" style="height:150px; margin-left:-15px;" />
-		</div>
-		<div class="col-xs-6">
-			<h2>Product Insights</h2>
-			<p style="font-size:14px; color:#03225C;">Your solution to Data Driven Decision through Product Insights on Consumer Reviews.
-      </p>
-         <a href="lda" class="btn btn-info" role="button">LDA Topic Model (Beta)</a>
-      <p>
-
-      </div>
-	</div>
-  <hr>
-    <div class="row">
-      <div class="form-inline">
-	<form name="review" method="POST" action="/solve" >
-		<select name="model" id="model" >
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-inline">
+                    <form name="review" method="POST" action="/solve">
+                        <select name="model" id="model">
 		{% for row in data %}
 			<option {{ "selected" if mdl == row[2] }} value="{{row[2]}}" >{{ row[1] + ' ' + row[2] }}</option>
 		{% endfor %}
-		</select>
-		<input type=submit name=submit >
-	</form>
-      </div>
+		  </select>
+                        <input type=submit name=submit>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% if (token_dict_pos) %}
+            <div class="col-md-6" id="plot_pos">
+                {{ plot_pos_img|safe }}
+            </div>
+            <div class="col-md-6" id="plot_neg">
+                {{ plot_neg_img|safe }}
+            </div>
+            {% endif %}
+        </div>
+        {% if (token_dict_pos) %}
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <tr>
+                        <td>Total Reviews:{{ total_count }}</td>
+                        <td>Positive Reviews:{{ pos_count }}</td>
+                        <td>Negative Reviews:{{ neg_count }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-condensed table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Positive Keyword</th>
+                            <th scope="col">Relative Importance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(5) %}
+                        <tr>
+                            <td>{{sent_pos[i][0]}}</td>
+                            <td>{{sent_pos[i][1]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-condensed table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Negative Keyword</th>
+                            <th scope="col">Relatative Importance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(5) %}
+                        <tr>
+                            <td>{{sent_neg[i][0]}}</td>
+                            <td>{{sent_neg[i][1]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    <div class="row col-md-6" >
-	{% if (token_dict_neg) %}
-    <p>
-    <table class="table" >
-      <tr>
-        <td>Total Reviews:{{ total_count }}</td>
-        <td>Positive Reviews:{{ pos_count }}</td>
-        <td>Negative Reviews:{{ neg_count }}</td>
-      </tr>
-    </table>
-    <p>
-		<table class="table table-condensed table-striped table-bordered" >
-      <tbody>
-        <thead>
-          <tr>
-            <th scope="col">Positive Keyword</th>
-            <th scope="col">Relative Importance</th>
-            <th scope="col">&nbsp;&nbsp;&nbsp;</th>
-            <th scope="col">Negative Keyword</th>
-            <th scope="col">Relatative Importance</th>
-          </tr>
-        </thead>
-
-	{% for i in range(20) %}
-			<tr>
-	          <td>{{token_dict_pos[i][0]}}</td>
-            <td>{{token_dict_pos[i][1]}}</td>
-            <td>&nbsp;&nbsp;&nbsp;</td>
-            <td>{{token_dict_neg[i][0]}}</td>
-            <td>{{token_dict_neg[i][1]}}</td>
-			</tr>
-	{% endfor %}
-      </tbody>
-		</table>
-  {% endif %}
-    </div>
-    <p>
-    <img src="plot.png" >
-</div>
-</div>
 </body>
+
 </html>
