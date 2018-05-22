@@ -73,13 +73,13 @@ class LdaReviewAnalyzer():
     def save_topic_model(self, loc='templates/lda.html'):
 
         #pyLDAvis.enable_notebook()
-        panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne')
+        panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne', lambda_step=0.5, R=15)
         pyLDAvis.save_html(panel,loc)
 
     def display_topic_model(self):
 
         pyLDAvis.enable_notebook()
-        panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne')
+        panel = pyLDAvis.sklearn.prepare(self.lda_model, self.data_vectorized, self.vectorizer, mds='tsne', lambda_step=0.5, R=15)
         return pyLDAvis.display(panel)
 
 

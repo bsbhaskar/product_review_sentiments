@@ -64,12 +64,11 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="form-inline">
-                    <form name="review" method="POST" action="/solve">
-                        <select name="model" id="model">
-		{% for row in data %}
-			<option {{ "selected" if mdl == row[2] }} value="{{row[2]}}" >{{ row[1] + ' ' + row[2] }}</option>
-		{% endfor %}
-		  </select>
+                    <form name="input_words" method="POST" action="/w2v_results">
+                        Positive Matches:
+                        <input type="text" name="plus" value="{{ plus }}" />
+                        Negative Matches:
+                        <input type="text" name="minus" value="{{ minus }}" />
                         <input type=submit name=submit>
                     </form>
                 </div>
@@ -78,73 +77,28 @@
         <div>
             <p></p>
         </div>
-        {% if (total_count) %}
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table table-bordered"  >
-                    <tr>
-                        <td fontsize="24" >Total Reviews:{{ total_count }}</td>
-                        <td fontsize="24" >Positive Reviews:{{ pos_count }}</td>
-                        <td fontsize="24">Negative Reviews:{{ neg_count }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        {% endif %}
-        <div class="row">
-            {% if (token_dict_pos) %}
-            <div class="col-md-6" id="plot_pos">
-                {{ plot_pos_img|safe }}
-            </div>
-            <div class="col-md-6" id="plot_neg">
-                {{ plot_neg_img|safe }}
-            </div>
-            {% endif %}
-        </div>
-        <div>
-            <p></p>
-        </div>
-        {% if (token_dict_pos) %}
         <div class="row">
             <div class="col-md-6">
+                {% if (sim_words) %}
                 <table class="table table-condensed table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th scope="col">Positive Keyword</th>
-                            <th scope="col">Relative Importance</th>
+                            <th scope="col">Similar Word</th>
+                            <th scope="col">Cosine Similarity</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in range(5) %}
+                        {%  for x in sim_words  %}
                         <tr>
-                            <td>{{sent_pos[i][0]}}</td>
-                            <td>{{sent_pos[i][1]}}</td>
+                            <td>{{ x[0] }}</td>
+                            <td>{{ x[1] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            <div class="col-md-6">
-                <table class="table table-condensed table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th scope="col">Negative Keyword</th>
-                            <th scope="col">Relatative Importance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for i in range(5) %}
-                        <tr>
-                            <td>{{sent_neg[i][0]}}</td>
-                            <td>{{sent_neg[i][1]}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
     </div>
 </body>
-
 </html>
