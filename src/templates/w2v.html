@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
 
     <title>Product Reviews</title>
     <meta name="description" content="Product Reviews">
@@ -66,9 +68,9 @@
                 <div class="form-inline">
                     <form name="input_words" method="POST" action="/w2v_results">
                         Similar Matches:
-                        <input type="text" name="plus" value="{{ plus }}" />
+                        <input style="font-size:30px;" type="text" name="plus" value="{{ plus }}" />
                         Dissimilar Matches:
-                        <input type="text" name="minus" value="{{ minus }}" />
+                        <input style="font-size:30px;" type="text" name="minus" value="{{ minus }}" />
                         <input type=submit name=submit>
                     </form>
                 </div>
@@ -83,15 +85,15 @@
                 <table class="table table-condensed table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th scope="col">Similar Word</th>
-                            <th scope="col">Cosine Similarity</th>
+                            <th style="font-size:20px;" scope="col">Similar Word</th>
+                            <th style="font-size:20px;" scope="col">Cosine Similarity</th>
                         </tr>
                     </thead>
                     <tbody>
                         {%  for x in sim_words  %}
                         <tr>
-                            <td>{{ x[0] }}</td>
-                            <td>{{ x[1] }}</td>
+                            <td style="font-size:20px;" >{{ x[0] }}</td>
+                            <td style="font-size:20px;" >{{ x[1] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

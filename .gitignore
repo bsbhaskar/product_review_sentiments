@@ -1,0 +1,12 @@
+data/scraped_data/
+.ipynb_checkpoints/
+src/__pycache__/
+data/tensor/
+static/
+src/static/
+src/templates/lda_pos.html
+src/templates/lda_neg.html
+src/templates/plot.png
+src/w2v_review_analyzer2.py
+data/scrape_tv_list_60.csv
+DemoCapture.mov
