@@ -1,3 +1,6 @@
+'''
+This file contains methods to pull all rows or product specific rows into a dataframe.
+'''
 import os
 import psycopg2
 import configparser
@@ -9,9 +12,10 @@ warnings.filterwarnings("ignore")
 class ReviewDataLoader:
 
     def __init__(self):
-
+        '''
+        DB credentials are stored in param.cfg file in users root directory
+        '''
         config = configparser.ConfigParser()
-
         config.read(os.path.expanduser('~/.product_reviews/param.cfg'))
         self.db_name = config['DB']['db_name']
         self.db_user = config['DB']['db_user']
@@ -19,6 +23,9 @@ class ReviewDataLoader:
         self.db_host = config['DB']['db_host']
 
     def parse_stars(self,r_stars):
+        '''
+        converts no of stars from amazon reviews into numerical ratings. In the future, this will happen in webparsing function
+        '''
         rating = 0
         if (r_stars == '5.0 out of 5 stars'):
             rating = 5
@@ -33,7 +40,9 @@ class ReviewDataLoader:
         return rating
 
     def retrieve_reviews(self,product):
-
+        '''
+        retrives data for specific product from db
+        '''
         conn = psycopg2.connect(dbname=self.db_name, user=self.db_user, password=self.db_pwd, host=self.db_host)
         cursor = conn.cursor()
         cursor.execute("select * from reviews where r_comments like 'Verified%' and model = '{}'".format(product))
@@ -49,6 +58,9 @@ class ReviewDataLoader:
         return df_new
 
     def retrieve_all_reviews(self):
+        '''
+        retrives data for all products from database. make sure there is sufficient memory to handle the large data-set.
+        '''
 
         conn = psycopg2.connect(dbname=self.db_name, user=self.db_user, password=self.db_pwd, host=self.db_host)
         cursor = conn.cursor()
