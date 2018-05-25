@@ -13,11 +13,18 @@ nltk.download('wordnet')
 
 class NaiveReviewAnalyzer:
 
+    '''
+    The class is used to extract key features from positive and negative reviews. First create bag of words by calling bow(). Create word list returns list of nouns or key features and adjectives or sentiments.
+    '''
+    
     def __init__(self):
 
-        # df = dataframe with atleast three columns rating, product, review
-        # review - is the corpus of documents
-        # rating - consists of binary label - 1 for pos reviews & 0 for neg reviews
+        '''
+        df = dataframe with atleast three columns rating, product, review
+        review - is the corpus of documents
+        rating - consists of binary label - 1 for pos reviews & 0 for neg reviews
+        '''
+
         self.stop_words = set(stopwords.words('english'))
         custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line','tv','picture','screen','hour','day','week','month','time','work','days','months','weeks'])
         self.stop_words = self.stop_words.union(custom_stop_words)

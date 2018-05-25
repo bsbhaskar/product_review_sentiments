@@ -11,6 +11,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 class Trigrams():
+    '''
+    This class trains model for bigrams and trigrams by analyzing the full document. The model can then be used to clean up the original reviewsself
+    '''
 
     def __init__(self):
 
