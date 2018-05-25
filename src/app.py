@@ -1,7 +1,14 @@
+'''
+app.py contains code necessary to run the webapp including
+Results from Naive Bayes Model and Word2Vec
+Currently, the topic model is loaded from a static file
+generated earlier.
+
+currently app.py uses three templates - review.html, w2v.html and lda.html
+'''
 import psycopg2
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from naive_review_analyzer import NaiveReviewAnalyzer
-from LdaReviewAnalyzer import LdaReviewAnalyzer
 from load_review_data import ReviewDataLoader
 from trigrams import Trigrams
 from w2v_review_analyzer import W2VReviewAnalyzer
@@ -15,31 +22,35 @@ import pickle
 
 rdl = ReviewDataLoader()
 nra = NaiveReviewAnalyzer()
-#lda = LdaReviewAnalyzer(num_topics=5)
 tr = Trigrams()
-print ('Initialized')
+
+'''
+Steps below are to load and cache all of the data
+necessary to run the app fast including loading
+product data, model etc.
+Following steps:
+    1) retrieves all products from the database
+    2) Loads model
+'''
 df_all = rdl.retrieve_all_reviews()
-print ('Loaded dataframe')
 tr.build_trigrams2(df_all)
-print ('built trigrams')
-# lda.build_vectorize(tr.df_prod)
-# lda.fit(df_all, random_state=22)
 w2v = W2VReviewAnalyzer(pd.DataFrame())
 w2v.model = pickle.load(open('../static/w2v.pkl','rb'))
-print ('loaded w2v model')
+
 app = Flask(__name__)
+
+#Following code load data needed for product dropdown
 conn = psycopg2.connect(dbname='product_reviews', user='postgres', password='', host='localhost')
 cursor = conn.cursor()
 sql = "select category, brand_name, model from reviews group by category, brand_name, model"
 cursor.execute(sql)
 rows = cursor.fetchall()
 
-@app.route('/test', methods=['GET'])
-def test():
-    return render_template('test.html')
-
 @app.route('/', methods=['GET'])
 def index():
+    '''
+    renders the initial template filled with data for pull-dropdown
+    '''
     return render_template('reviews.html', data=rows)
 
 @app.route('/w2v', methods=['GET'])
@@ -48,6 +59,9 @@ def similar_words_index():
 
 @app.route('/w2v_results', methods=['POST'])
 def similar_words_results():
+    '''
+    parse input keywords and display results from word2vec model
+    '''
     plus_words = ''
     minus_words = ''
     plus = request.form['plus']
@@ -62,8 +76,11 @@ def similar_words_results():
 
 @app.route('/solve', methods=['POST'])
 def submit():
+    '''
+    parse model and aggregate information such as no of positive
+    and negative reviews, and relative probabilities from Naive Bayes model
+    '''
     mdl = request.form['model']
-    #df = rdl.retrieve_reviews(mdl)
     df = tr.df_prod[tr.df_prod['model'] == mdl]
     total_count = df['rating'].count()
     df_neg = df[df['rating'].apply(lambda x: x in [1,2])]
@@ -74,32 +91,11 @@ def submit():
     token_dict_neg, sent_neg = nra.create_word_list(rating=[1,2])
     token_dict_pos, sent_pos = nra.create_word_list(rating=[4,5])
 
-    # lda.transform(mdl, rating=[1,2])
-    # topic_dict_neg = lda.get_topics()
-    # lda.save_topic_model('templates/lda_neg.html')
-    #
-    # lda.transform(mdl, rating=[4,5])
-    # topic_dict_pos = lda.get_topics()
-    # lda.save_topic_model('templates/lda_pos.html')
-    print ('data:',rows)
-    print ('----------------------------------')
-    print ('mld:',mdl)
-    print ('----------------------------------')
-    # print ('topic_dict_pos:',topic_dict_pos)
-    # print ('----------------------------------')
-    print ('token_dict_pos:',token_dict_pos)
-    print ('----------------------------------')
-    # print ('topic_dict_neg:',topic_dict_neg)
-    # print ('----------------------------------')
-    print ('token_dict_neg:',token_dict_neg)
-    print ('----------------------------------')
-    print ('Count:',total_count, neg_count, pos_count)
-
+    #Build features from positive and negative reviews
     max_count = 10
 
     objects = [x[0] for i,x in enumerate(token_dict_pos) if i < max_count]
     y_pos = list(range(len(objects)-1,-1,-1))
-    #y_pos = list(range(len(objects)))
     performance = [x[1] for i,x in enumerate(token_dict_pos) if i < max_count]
     print ('objects:',objects)
     print ('performance:',performance)
@@ -116,7 +112,6 @@ def submit():
 
     objects = [x[0] for i,x in enumerate(token_dict_neg) if i < max_count]
     y_neg = list(range(len(objects)-1,-1,-1))
-    #y_neg = list(range(len(objects)))
     performance = [x[1] for i,x in enumerate(token_dict_neg) if i < max_count]
 
     fig, ax = plt.subplots(1,1, figsize=(12,8))
@@ -131,12 +126,9 @@ def submit():
     plot_neg_img = f'<img width="500" height="400" src="static/images/plot_neg_{mdl}.png" />'
     plot_pos_img = f'<img  width="500" height="400" src="static/images/plot_pos_{mdl}.png" />'
 
-    #return render_template('reviews.html')
     return render_template('reviews.html',
                            data=rows,
                            mdl=mdl,
-                           # topic_dict_neg=topic_dict_neg,
-                           # topic_dict_pos=topic_dict_pos,
                            token_dict_neg=token_dict_neg,
                            token_dict_pos=token_dict_pos,
                            sent_neg=sent_neg,
