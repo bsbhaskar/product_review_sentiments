@@ -14,6 +14,10 @@ class W2VReviewAnalyzer():
 
     def __init__(self, df):
 
+        '''
+        this class builds a Word2Vec Model using Gensim library on full corpus of documents. 
+        '''
+
         self.df_prod = df
         self.nlp = spacy.load("en")
         self.stop_words = set(stopwords.words('english'))

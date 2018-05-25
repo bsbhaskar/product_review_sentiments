@@ -19,9 +19,11 @@ import pickle
 
 class LdaReviewAnalyzer():
 
-    #This class builds classifies documents and words into topics using
-    #Latent Dirichlet Allocation algorithm from sklearn
-    #pyLDAvis library is used to visualize the topics
+    """
+    This class builds classifies documents and words into topics using
+    Latent Dirichlet Allocation algorithm from sklearn. It is important to keep the random state constant for get reproducible results
+    pyLDAvis library is used to visualize the topics
+    """
 
     def __init__(self, num_topics=5):
         # df is dataframe with atleaast one column named reviews which is the # # corpus used for analyzing topics. The dataframe may contain products # and ratings if necessary for segmenting the topics
