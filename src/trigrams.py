@@ -4,9 +4,11 @@ import string
 import pandas as pd
 import numpy as np
 import spacy
+import pickle
 from nltk.stem.wordnet import WordNetLemmatizer
 from gensim.models import Phrases, Word2Vec
 from nltk.corpus import stopwords
+from load_review_data import ReviewDataLoader
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -24,6 +26,9 @@ class Trigrams():
         self.punctuation = set(string.punctuation)
         self.lemmatize = WordNetLemmatizer()
 
+    def load_model(self):
+        self.bigram_model = pickle.load(open('../static/bigram_model.pkl','rb'))
+        self.trigram_model = pickle.load(open('../static/trigram_model.pkl','rb'))
 
     def clean_document(self, doc):
         words = []
@@ -56,7 +61,7 @@ class Trigrams():
                 corpus_lemma.append(' '.join([token.lemma_ for token in sent if self.keep_token(token)]))
         return corpus_lemma
 
-    def build_trigrams(self, df):
+    def fit(self, df):
 
         self.df_prod = df
         self.bigram_model = Phrases([doc.split(" ") for doc in self.lemmatized_sentence_corpus(self.df_prod['reviews'].values)], min_count=2)
@@ -65,46 +70,29 @@ class Trigrams():
             bigram_sentences.append(' '.join(self.bigram_model[unigram_sentence.split(" ")]))
         self.trigram_model = Phrases([doc.split(" ") for doc in bigram_sentences], min_count=2)
 
-        self.trigrams_doc = []
-        for doc in self.df_prod['reviews'].values:
+    def transform(self, df):
+        trigrams_doc = []
+        for doc in df['reviews'].values:
             clean_doc = ' '.join(self.clean_document(doc))
             parsed_doc = self.nlp(clean_doc)
             bigram_doc = ' '.join(self.bigram_model[(token.lemma_ for token in parsed_doc if self.keep_token(token))])
             trigram_doc = ' '.join(self.trigram_model[(token for token in bigram_doc.split(" "))])
-            #self.trigrams_doc.append(self.trigram_model[(token for token in bigram_doc.split(" "))])
-            self.trigrams_doc.append(trigram_doc)
-        self.df_prod['reviews'] = self.trigrams_doc
-
-    def build_trigrams2(self, df):
-
-        self.df_prod = df;
-        self.bigram_model = Phrases([doc.split(" ") for doc in self.df_prod['reviews'].values], common_terms='common_terms', min_count=1)
-        bigram_sentences = []
-        count = 0
-        for unigram_sentence in self.df_prod['reviews'].values:
-            bigram_sentence = ' '.join(self.bigram_model[unigram_sentence.split(" ")])
-            bigram_sentences.append(bigram_sentence)
-            count += 1
-        self.trigram_model = Phrases([doc.split(" ") for doc in bigram_sentences], common_terms='common_terms', min_count=1)
-
-        self.trigrams_doc = []
-        for doc in self.df_prod['reviews'].values:
-            parsed_doc = self.nlp(doc)
-            bigram_doc = ' '.join(self.bigram_model[(token.lemma_ for token in parsed_doc if self.keep_token(token))])
-            trigram_doc = ' '.join(self.trigram_model[(token for token in bigram_doc.split(" "))])
-            #self.trigrams_doc.append(self.trigram_model[(token for token in bigram_doc.split(" "))])
-            self.trigrams_doc.append(' '.join(self.clean_document(trigram_doc)))
-        self.df_prod['reviews'] = self.trigrams_doc
+            trigrams_doc.append(trigram_doc)
+        df['reviews'] = trigrams_doc
+        return df
 
     def get_trigrams(self, doc):
-        clean_doc = ' '.join(self.clean_document(doc))
-        parsed_doc = self.nlp(clean_doc)
-        bigram_doc = ' '.join(self.bigram_model[(token.lemma_ for token in parsed_doc if self.keep_token(token))])
-        trigram_doc = ' '.join(self.trigram_model[(token for token in bigram_doc.split(" "))])
-        return trigram_doc
-
-    def get_trigrams2(self, doc):
         parsed_doc = self.nlp(doc)
         bigram_doc = ' '.join(self.bigram_model[(token.lemma_ for token in parsed_doc if self.keep_token(token))])
         trigram_doc = ' '.join(self.trigram_model[(token for token in bigram_doc.split(" "))])
         return ' '.join(self.clean_document(trigram_doc))
+
+if __name__ == '__main__':
+    rdl = ReviewDataLoader()
+    df_all = rdl.retrieve_all_reviews()
+    tr = Trigrams()
+    tr.build_trigrams(df_all)
+    with open('../static/bigram_model.pkl', 'wb') as f:
+        pickle.dump(tr.bigram_model, f)
+    with open('../static/trigram_model.pkl', 'wb') as f:
+        pickle.dump(tr.trigram_model, f)

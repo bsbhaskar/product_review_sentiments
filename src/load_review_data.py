@@ -39,13 +39,13 @@ class ReviewDataLoader:
             rating = 1
         return rating
 
-    def retrieve_reviews(self,product):
+    def retrieve_reviews(self,model):
         '''
         retrives data for specific product from db
         '''
         conn = psycopg2.connect(dbname=self.db_name, user=self.db_user, password=self.db_pwd, host=self.db_host)
         cursor = conn.cursor()
-        cursor.execute("select * from reviews where r_comments like 'Verified%' and model = '{}'".format(product))
+        cursor.execute("select * from reviews where r_comments like 'Verified%' and model = '{}'".format(model))
         rows = cursor.fetchall()
         df = pd.DataFrame(rows)
         columns = ['id','product','url','p_no','r_no','r_stars','r_date','r_name','r_title','r_text','r_comments','brand_name','category','model']
