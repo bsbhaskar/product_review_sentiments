@@ -23,6 +23,7 @@ import pickle
 rdl = ReviewDataLoader()
 nra = NaiveReviewAnalyzer()
 tr = Trigrams()
+tr.load_model()
 
 '''
 Steps below are to load and cache all of the data
@@ -32,8 +33,8 @@ Following steps:
     1) retrieves all products from the database
     2) Loads model
 '''
-df_all = rdl.retrieve_all_reviews()
-tr.build_trigrams2(df_all)
+#df_all = rdl.retrieve_all_reviews()
+#tr.build_trigrams(df_all)
 w2v = W2VReviewAnalyzer(pd.DataFrame())
 w2v.model = pickle.load(open('../static/w2v.pkl','rb'))
 
@@ -81,7 +82,9 @@ def submit():
     and negative reviews, and relative probabilities from Naive Bayes model
     '''
     mdl = request.form['model']
-    df = tr.df_prod[tr.df_prod['model'] == mdl]
+    df_mdl = rdl.retrieve_reviews(mdl)
+    df = tr.transform(df_mdl)
+    #df = tr.df_prod[tr.df_prod['model'] == mdl]
     total_count = df['rating'].count()
     df_neg = df[df['rating'].apply(lambda x: x in [1,2])]
     neg_count = df_neg['rating'].count()
