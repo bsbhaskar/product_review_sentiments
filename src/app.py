@@ -10,6 +10,7 @@ import psycopg2
 from flask import Flask, render_template, request
 from naive_review_analyzer import NaiveReviewAnalyzer
 from load_review_data import ReviewDataLoader
+from word_processing import WordProcessor
 from trigrams import Trigrams
 from w2v_review_analyzer import W2VReviewAnalyzer
 from random import random
@@ -20,9 +21,10 @@ from io import BytesIO
 import pandas as pd
 import pickle
 
+wp = WordProcessor()
 rdl = ReviewDataLoader()
-nra = NaiveReviewAnalyzer()
-tr = Trigrams()
+nra = NaiveReviewAnalyzer(wp)
+tr = Trigrams(wp)
 tr.load_model()
 
 '''
@@ -35,7 +37,7 @@ Following steps:
 '''
 #df_all = rdl.retrieve_all_reviews()
 #tr.build_trigrams(df_all)
-w2v = W2VReviewAnalyzer(pd.DataFrame())
+w2v = W2VReviewAnalyzer(pd.DataFrame(), wp)
 w2v.model = pickle.load(open('../static/w2v.pkl','rb'))
 
 app = Flask(__name__)

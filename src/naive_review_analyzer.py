@@ -16,30 +16,22 @@ class NaiveReviewAnalyzer:
     '''
     The class is used to extract key features from positive and negative reviews. First create bag of words by calling bow(). Create word list returns list of nouns or key features and adjectives or sentiments.
     '''
-    
-    def __init__(self):
+
+    def __init__(self, wp):
 
         '''
         df = dataframe with atleast three columns rating, product, review
         review - is the corpus of documents
         rating - consists of binary label - 1 for pos reviews & 0 for neg reviews
         '''
-
-        self.stop_words = set(stopwords.words('english'))
-        custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line','tv','picture','screen','hour','day','week','month','time','work','days','months','weeks'])
-        self.stop_words = self.stop_words.union(custom_stop_words)
-        self.punctuation = set(string.punctuation)
-        self.lemmatize = WordNetLemmatizer()
-        self.nlp = spacy.load("en")
+        self.wp = wp
 
 
     def clean_document(self, doc):
 
-        doc_no_stopwords = " ".join([i for i in doc.lower().split() if i not in self.stop_words])
-        doc_no_punctuation = "".join(i for i in doc_no_stopwords if i not in self.punctuation)
-        doc_Lemmatized = " ".join(self.lemmatize.lemmatize(i) for i in doc_no_punctuation.split())
-
-        return doc_no_stopwords
+        doc_no_stopwords = " ".join([i for i in doc.lower().split() if i not in self.wp.stop_words])
+        doc_lemmatized = " ".join(self.wp.lemmatize.lemmatize(i) for i in doc_no_stopwords.split())
+        return doc_lemmatized
 
     def create_bow(self, df):
 
@@ -54,7 +46,7 @@ class NaiveReviewAnalyzer:
             df_prod = self.df[self.df['product'] == product]
             df_prod = df_prod[self.df['rating'].apply(lambda x: x in rating)]
 
-        tfidf = TfidfVectorizer(stop_words=self.stop_words,max_features=10000)
+        tfidf = TfidfVectorizer(stop_words=self.wp.stop_words,max_features=10000)
         X_descr_vectors = tfidf.fit_transform(df_prod['bow'])
         nb = MultinomialNB()
         nb.fit(X_descr_vectors, df_prod['rating'].transpose())
@@ -70,14 +62,14 @@ class NaiveReviewAnalyzer:
             list_of_prob.append(int((np.exp(nb.feature_log_prob_[0][i])/max_prob)*100))
 
 
-        tokens = self.nlp(' '.join(list_of_words))
+        tokens = self.wp.nlp(' '.join(list_of_words))
 
         list_of_tokens = {}
         list_of_nouns = []
         list_of_adjs = []
         list_of_verbs = []
         for i, word in enumerate(list_of_words):
-            tokens = self.nlp(word)
+            tokens = self.wp.nlp(word)
             value = list_of_tokens.get(tokens[0].pos_,[])
             value.append((tokens[0].orth_,list_of_prob[i]))
             list_of_tokens[tokens[0].pos_] = value
