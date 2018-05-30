@@ -14,6 +14,9 @@ class WordProcessor():
 
     def __init__(self):
 
+        '''
+        Initialize loading of keywords and vocab and custom keywords. In the future, the custom keywords will be moved to a file.
+        '''
         self.nlp = spacy.load("en")
         self.stop_words = set(stopwords.words('english'))
         custom_stop_words = set(['is','have','was','has','been','','samsung','one','amazon','sony','star','stars','middle','black','use','white','dont','night','room','way','purchased','vanns','think','got','thought','way','set','nice','son','half','line','tv','picture','screen','work','hour','day','week','month','time','work','days','months','weeks','pron'])
@@ -22,6 +25,9 @@ class WordProcessor():
         self.lemmatize = WordNetLemmatizer()
 
     def clean_document(self, doc):
+        '''
+        returns list of words from a document post word_processing
+        '''        
         words = []
         for word in doc.lower().split():
             if ((word not in self.stop_words) and (word not in self.punctuation) and (len(word) > 1)):

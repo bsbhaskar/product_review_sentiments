@@ -39,7 +39,13 @@ class NaiveReviewAnalyzer:
         self.df['bow'] = self.df['reviews'].apply(lambda x: self.clean_document(x))
 
     def create_word_list(self, product='all', rating=[1,5]):
-
+        '''
+        For a given product, identifies key features within a given corpus of documentsself.
+        Step 1 is to vectorize the documents using TFIDF
+        Step 2 is to fit Multinomial Naive Bayes algorithm
+        Step 3 is to get log probabilities of features or sort them in ascending order
+        Step 4 is to return list of Nouns as Features and list of adjectives as sentiments in descending order.
+        '''
         if (product == 'all'):
             df_prod = self.df[self.df['rating'].apply(lambda x: x in rating)]
         else:

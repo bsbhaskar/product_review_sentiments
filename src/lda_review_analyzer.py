@@ -25,17 +25,19 @@ class LdaReviewAnalyzer():
     pyLDAvis library is used to visualize the topics
     """
 
-    def __init__(self, num_topics=5):
-        # df is dataframe with atleaast one column named reviews which is the # # corpus used for analyzing topics. The dataframe may contain products # and ratings if necessary for segmenting the topics
+    def __init__(self, num_topics=5, wp):
+        '''
+        df is dataframe with atleaast one column named reviews which is the corpus used for analyzing topics. The dataframe may contain products and ratings if necessary for segmenting the topics
+        wp is the WordProcessor class from word_processing.py
+        '''
         self.num_topics = num_topics
-        self.stop_words = set(stopwords.words('english'))
-        custom_stop_words = set(['samsung','one','amazon','sony','star','stars','middle','black','use','tv','white','dont','night','room','way','purchased','vanns','think','got','thought','way','great','set','nice','son','half','line','tv','picture','screen','hour','day','week','month','time','work'])
-        self.stop_words = self.stop_words.union(custom_stop_words)
+        self.wp = wp
+
 
     def build_vectorize(self, df_prod):
 
         self.vectorizer = CountVectorizer(min_df=5, max_df=0.9,
-                             stop_words=self.stop_words, lowercase=True,
+                             stop_words=self.wp.stop_words, lowercase=True,
                              token_pattern='[a-zA-Z\-][a-zA-Z\-]{2,}')
         self.vectorizer.fit(df_prod['reviews'])
 

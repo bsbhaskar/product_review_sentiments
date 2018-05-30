@@ -5,7 +5,15 @@ import pickle
 import time
 import sys
 
+'''
+web scrapper to scrape amazon, bestbuy and walmart customer review links. Input to the file is a url to customer review page along with the site. The scrapper has a page clicker that collects all review pages for the given product and stores as a collection of html documents in file for future processing.
+Future enhancements will include, idenfying customer review pages on major ecommerce sites, given a product identifier .
+'''
+
 def scrape_data(list_name, id, url, scraping_site='amazon'):
+    '''
+    method to scape webpage given url and site named.
+    '''
     documents = []
     if (scraping_site == 'amazon'):
         next_page_class = 'li.a-last'
@@ -20,7 +28,6 @@ def scrape_data(list_name, id, url, scraping_site='amazon'):
 
     while (contains_next_page and len(documents) < 250):
         time.sleep(random.choice(range(20,50)))
-        print ('inside while loop',len(documents))
         try:
             html = browser.page_source
             documents.append(html)
@@ -42,6 +49,9 @@ def scrape_data(list_name, id, url, scraping_site='amazon'):
         return False
 
 def load_scrape_list(filename):
+    '''
+    load url data from a csv file
+    '''
     df = pd.read_csv(filename)
     for row in df[df['Status'] == 1].iterrows():
        id = row[1][0]

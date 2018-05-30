@@ -9,16 +9,18 @@ warnings.filterwarnings("ignore")
 class W2VReviewAnalyzer():
 
     def __init__(self, df, wp):
-
         '''
-        this class builds a Word2Vec Model using Gensim library on full corpus of documents. 
+        this class builds a Word2Vec Model using Gensim library on full corpus of documents. Word2Vec Model typically works better on a large corpus of data.
+        wp is the WordProcessor utility class from word_processing
+        In the future, the df needs to be moved to fit
         '''
-
         self.df_prod = df
         self.wp = wp
 
     def create_bow(self):
-
+        '''
+        Creates a bag of words for each review and adds it as a column to the DataFrame
+        '''
         self.df_prod['bow'] = self.df_prod['reviews'].apply(lambda x: self.wp.clean_document(x))
         self.build_trigrams()
         return self.df_prod
@@ -55,7 +57,6 @@ class W2VReviewAnalyzer():
             self.trigrams_doc.append(self.trigram_model[(token for token in bigram_doc.split(" "))])
 
     def fit(self):
-
         self.build_trigrams()
         self.model = Word2Vec(self.trigrams_doc, size=100, window=5, min_count=5, workers=4)
 
@@ -64,5 +65,7 @@ class W2VReviewAnalyzer():
         self.model = Word2Vec(self.df_prod['bow'].values, size=100, window=5, min_count=5, workers=4)
 
     def most_similar(pos=[], neg=[]):
-
+        '''
+        positive matches return keywords that have the highest cosine similarity. Negative matches have the highest negative cosine similarity
+        '''
         return self.model.wv.most_similar(positive=pos, negative=neg)

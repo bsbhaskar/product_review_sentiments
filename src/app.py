@@ -6,7 +6,9 @@ generated earlier.
 
 currently app.py uses three templates - review.html, w2v.html and lda.html
 '''
+import os
 import psycopg2
+import configparser
 from flask import Flask, render_template, request
 from naive_review_analyzer import NaiveReviewAnalyzer
 from load_review_data import ReviewDataLoader
@@ -43,7 +45,14 @@ w2v.model = pickle.load(open('../static/w2v.pkl','rb'))
 app = Flask(__name__)
 
 #Following code load data needed for product dropdown
-conn = psycopg2.connect(dbname='product_reviews', user='postgres', password='', host='localhost')
+config = configparser.ConfigParser()
+config.read(os.path.expanduser('~/.product_reviews/param.cfg'))
+db_name = config['DB']['db_name']
+db_user = config['DB']['db_user']
+db_pwd = config['DB']['db_pwd']
+db_host = config['DB']['db_host']
+
+conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_pwd, host=db_host)
 cursor = conn.cursor()
 sql = "select category, brand_name, model from reviews group by category, brand_name, model"
 cursor.execute(sql)
