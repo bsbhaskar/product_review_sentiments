@@ -1,9 +1,10 @@
 # Product Insights Based On Customer Reviews
 
-1) About
-2) Process
-3) Implementation
-4) Web Portal
+## TOC
+1. [About](#about)
+2. [Process](#process)
+3. [Implementation](#implementation)
+4. [Setup](#setup)
 
 # About
 
@@ -38,7 +39,7 @@ To gain insights, three different approaches are used - feature extraction from 
 The vectorized data from TFIDF was fed into sklearn's Multinomial. Positive reviews (rating = 4,5) and negative reviews ( rating = 1,2 ) were fed separately and feature log probabilities were used to determine highlight features. Spacy's parts of speech was used to identify nouns as features and adjectives as sentiments. Full corpus of documents after cleanup was fed into sklearn's LDA model to cluster features into topics. Similarly, full corpus of data from archived dataset was fed into Gensim's word2vec model to extract similarities between features.
 
 
-# Set-up
+# Setup
 
 After pulling down github repository, implement the following steps to get started.
 
